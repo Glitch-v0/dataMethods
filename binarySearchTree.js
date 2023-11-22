@@ -3,14 +3,12 @@ class Node {
     this.data = data;
     this.left = left;
     this.right = right;
-    this.parent = parent;
   }
 }
 
 class BinarySearchTree {
   constructor(arr) {
     this.root = this.buildSortedTree(arr);
-    // arr.forEach((num) => this.insert(num));
   }
 
   insert(data) {
@@ -42,21 +40,29 @@ class BinarySearchTree {
     }
   }
 
-  findNode(data, node = this.root, parent = null) {
+  findNode(searchQuery, node = this.root, parent = null) {
     // Checks if node is empty or a match
     if (node === null) {
+      console.log('Node is empty')
       return null;
-    } else if (node.data === data) {
+    } else if (node.data === searchQuery) {
+      console.log("Found the node!");
       return { node, parent };
     }
+    console.log(
+      `\nNode: ${node.data}. Parent: ${parent ? parent.data : "null"}`
+    );
     //Recursively crawls down the tree to the left
-    let leftResult = this.findNode(data, node.left, node);
+    console.log('Crawling down the left side of the tree...')
+    let leftResult = this.findNode(searchQuery, node.left, node);
     if (leftResult !== null) {
+      console.log("Found the node! It has a parent.");
       return leftResult;
     }
 
     //Recursively crawls down the tree to the right
-    let rightResult = this.findNode(data, node.right, node);
+    console.log("Crawling down the right side of the tree...");
+    let rightResult = this.findNode(searchQuery, node.right, node);
     if (rightResult !== null) {
       return rightResult;
     }
@@ -65,9 +71,10 @@ class BinarySearchTree {
 
   delete(dataToDelete) {
     let results = this.findNode(dataToDelete);
+    console.log({results})
     
     // The node was not found and cannot be deleted
-    if (results.node === null) {
+    if (results === null) {
       return false;
 
     // The node was found, a reference to it and its parent are stored.
@@ -176,10 +183,12 @@ class BinarySearchTree {
 }
 
 let numberArray = [];
-for (let i = 0; i < 10; i++) {
+for (let i = 0; i < 25; i++) {
   numberArray.push(Math.floor(Math.random() * 1001));
 }
 
 let newTree = new BinarySearchTree(numberArray);
 
-console.log(newTree.prettyPrint(newTree.root));
+newTree.prettyPrint(newTree.root);
+console.log(newTree.findNode([numberArray[2]]));
+console.log(numberArray[2]);
