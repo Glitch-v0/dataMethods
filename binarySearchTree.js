@@ -1,8 +1,9 @@
 class Node {
-  constructor(data, left = null, right = null) {
+  constructor(data, left = null, right = null, parent = null) {
     this.data = data;
     this.left = left;
     this.right = right;
+    this.parent = parent;
   }
 }
 
@@ -41,42 +42,94 @@ class BinarySearchTree {
     }
   }
 
-  find(data, node = this.root) {
+  findNode(data, node = this.root, parent = null) {
+    // Checks if node is empty or a match
     if (node === null) {
       return null;
     } else if (node.data === data) {
-      return node;
+      return { node, parent };
     }
-    let leftResult = this.find(data, node.left);
+    //Recursively crawls down the tree to the left
+    let leftResult = this.findNode(data, node.left, node);
     if (leftResult !== null) {
       return leftResult;
     }
-    let rightResult = this.find(data, node.right);
+
+    //Recursively crawls down the tree to the right
+    let rightResult = this.findNode(data, node.right, node);
     if (rightResult !== null) {
       return rightResult;
     }
     return null;
   }
 
-  /* Must consider the base case, if node is a leaf (no children), node with one child, and node with two children */
-  delete(dataToDelete, node = this.root) {
-    if (dataToDelete < node.data) {
-      this.deleteHelper(node, dataToDelete, "left");
-    } else if (dataToDelete > node.data) {
-      this.deleteHelper(node, dataToDelete, "right");
+  delete(dataToDelete) {
+    let results = this.findNode(dataToDelete);
+    
+    // The node was not found and cannot be deleted
+    if (results.node === null) {
+      return false;
+
+    // The node was found, a reference to it and its parent are stored.
     } else {
-      return "Error! Duplicate data detected.";
+      var foundNode = results.node;
+      if (results.parent !== null) {
+        var nodeParent = results.parent;
+      }
+    }
+    // Check if node is root before deleting (NOT FINISHED!!!)
+    if (nodeParent === null && dataToDelete === this.root) {
+    }
+
+    /* Conditions for if the node has no children, one child, or two children */
+    
+    // Node has no children
+    if (foundNode.left === null && foundNode.right === null) {
+      this.deleteParentReference(foundNode, nodeParent)
+      return true;
+
+      // Node has one child
+    } else if ((foundNode.left !== null) ^ (foundNode.right !== null)) {
+      let singleChild =
+        foundNode.left !== null ? foundNode.left : foundNode.right;
+      this.replaceParentReference(foundNode, nodeParent, singleChild);
+      return true
+
+      // Node has two children
+    } else if (foundNode.left !== null && foundNode.right !== null) {
+      let successorNode = this.findSuccessor(foundNode.right);
+      this.replaceParentReference(foundNode, nodeParent, successorNode);
+      this.delete(successorNode);
+      return true
+    } else {
+      return false
     }
   }
 
-  deleteHelper(node, newNode, direction) {
-    // if the child in the given direction is null, assign newNode to it
-    if (node[direction] === null) {
-      node[direction] = newNode;
+  deleteParentReference(node, parent) {
+    if (parent.left === node || parent.right === node) {
+      parent[parent.left === node ? 'left' : 'right'] = null;
+      return true;
     } else {
-      // if the child in the given direction is not null, recur with it
-      this.insertNode(node[direction], newNode);
+      return false;
     }
+  }
+
+  replaceParentReference(node, parent, child) {
+    if (parent.left === node || parent.right === node) {
+      parent[parent.left === node ? "left" : "right"] = child;
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  findSuccessor(node) {
+    // The in-order successor is the leftmost node in the right subtree
+    while (node.left !== null) {
+      node = node.left;
+    }
+    return node;
   }
 
   buildSortedTree(arr, start, end) {
@@ -129,9 +182,4 @@ for (let i = 0; i < 10; i++) {
 
 let newTree = new BinarySearchTree(numberArray);
 
-for (let i = 0; i < 1; i++) {
-  newTree.insert(Math.floor(Math.random() * 1001));
-}
-
 console.log(newTree.prettyPrint(newTree.root));
-console.log(newTree.find(numberArray[0]));
