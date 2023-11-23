@@ -47,44 +47,45 @@ class BinarySearchTree {
     } else if (node.data === searchQuery) {
       return { node, parent };
     }
-    //Recursively crawls down the tree to the left
-    let leftResult = this.findNode(searchQuery, node.left, node);
-    if (leftResult !== null) {
-      return leftResult;
+    // Iterates through the tree using a while loop
+    while (node !== null) {
+      // If the search query is smaller than the node data, go to the left subtree
+      if (searchQuery < node.data) {
+        parent = node;
+        node = node.left;
+        // If the search query is larger than the node data, go to the right subtree
+      } else if (searchQuery > node.data) {
+        parent = node;
+        node = node.right;
+        // If the search query is equal to the node data, return the node and its parent
+      } else {
+        return { node, parent };
+      }
     }
-
-    //Recursively crawls down the tree to the right
-    let rightResult = this.findNode(searchQuery, node.right, node);
-    if (rightResult !== null) {
-      return rightResult;
-    }
-    return null
+    // If the node is null, the search query was not found in the tree
+    return null;
   }
 
   delete(dataToDelete) {
     let results = this.findNode(dataToDelete);
-    console.log({results})
-    
+
     // The node was not found and cannot be deleted
     if (results === null) {
       return false;
 
-    // The node was found, a reference to it and its parent are stored.
+      // The node was found, a reference to it and its parent are stored.
     } else {
       var foundNode = results.node;
       if (results.parent !== null) {
         var nodeParent = results.parent;
       }
     }
-    // Check if node is root before deleting (NOT FINISHED!!!)
-    if (nodeParent === null && dataToDelete === this.root) {
-    }
 
     /* Conditions for if the node has no children, one child, or two children */
-    
+
     // Node has no children
     if (foundNode.left === null && foundNode.right === null) {
-      this.deleteParentReference(foundNode, nodeParent)
+      this.deleteParentReference(foundNode, nodeParent);
       return true;
 
       // Node has one child
@@ -92,22 +93,31 @@ class BinarySearchTree {
       let singleChild =
         foundNode.left !== null ? foundNode.left : foundNode.right;
       this.replaceParentReference(foundNode, nodeParent, singleChild);
-      return true
+      return true;
 
       // Node has two children
     } else if (foundNode.left !== null && foundNode.right !== null) {
       let successorNode = this.findSuccessor(foundNode.right);
-      this.replaceParentReference(foundNode, nodeParent, successorNode);
-      this.delete(successorNode);
-      return true
+      successorNode.left = foundNode.left;
+      successorNode.right = foundNode.right;
+      if (dataToDelete === this.root) {
+        // If root, don't attempt to replace the parent.
+        this.delete(successorNode);
+        return true;
+      } else if (dataToDelete !== this.root) {
+        // If not root, attempt to replace the parent.
+        this.replaceParentReference(foundNode, nodeParent, successorNode);
+        this.delete(successorNode);
+        return true;
+      }
     } else {
-      return false
+      return false;
     }
   }
 
   deleteParentReference(node, parent) {
     if (parent.left === node || parent.right === node) {
-      parent[parent.left === node ? 'left' : 'right'] = null;
+      parent[parent.left === node ? "left" : "right"] = null;
       return true;
     } else {
       return false;
@@ -175,13 +185,18 @@ class BinarySearchTree {
 }
 
 let numberArray = [];
-for (let i = 0; i < 25; i++) {
+for (let i = 0; i < 32; i++) {
   numberArray.push(Math.floor(Math.random() * 1001));
 }
 
 let newTree = new BinarySearchTree(numberArray);
 
 newTree.prettyPrint(newTree.root);
-console.log(newTree.delete(numberArray[2]));
-console.log(newTree.findNode(numberArray[2]));
-console.log(numberArray[2]);
+for (let i = 0; i < 2; i++) {
+  let currentNum = numberArray[i];
+  console.log(newTree.findNode(currentNum))
+  console.log(`Attempting to delete ${currentNum}`);
+  newTree.delete(currentNum);
+  console.log(newTree.findNode(currentNum));
+}
+newTree.prettyPrint(newTree.root)
