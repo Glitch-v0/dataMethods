@@ -194,9 +194,7 @@ let newTree = new BinarySearchTree(numberArray);
 newTree.prettyPrint(newTree.root);
 for (let i = 0; i < 2; i++) {
   let currentNum = numberArray[i];
-  console.log(newTree.findNode(currentNum))
   console.log(`Attempting to delete ${currentNum}`);
   newTree.delete(currentNum);
-  console.log(newTree.findNode(currentNum));
 }
 newTree.prettyPrint(newTree.root)
