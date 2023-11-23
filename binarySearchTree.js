@@ -182,5 +182,6 @@ for (let i = 0; i < 25; i++) {
 let newTree = new BinarySearchTree(numberArray);
 
 newTree.prettyPrint(newTree.root);
+console.log(newTree.delete(numberArray[2]));
 console.log(newTree.findNode(numberArray[2]));
 console.log(numberArray[2]);
