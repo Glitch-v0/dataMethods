@@ -43,30 +43,22 @@ class BinarySearchTree {
   findNode(searchQuery, node = this.root, parent = null) {
     // Checks if node is empty or a match
     if (node === null) {
-      console.log('Node is empty')
       return null;
     } else if (node.data === searchQuery) {
-      console.log("Found the node!");
       return { node, parent };
     }
-    console.log(
-      `\nNode: ${node.data}. Parent: ${parent ? parent.data : "null"}`
-    );
     //Recursively crawls down the tree to the left
-    console.log('Crawling down the left side of the tree...')
     let leftResult = this.findNode(searchQuery, node.left, node);
     if (leftResult !== null) {
-      console.log("Found the node! It has a parent.");
       return leftResult;
     }
 
     //Recursively crawls down the tree to the right
-    console.log("Crawling down the right side of the tree...");
     let rightResult = this.findNode(searchQuery, node.right, node);
     if (rightResult !== null) {
       return rightResult;
     }
-    return null;
+    return null
   }
 
   delete(dataToDelete) {
@@ -190,5 +182,5 @@ for (let i = 0; i < 25; i++) {
 let newTree = new BinarySearchTree(numberArray);
 
 newTree.prettyPrint(newTree.root);
-console.log(newTree.findNode([numberArray[2]]));
+console.log(newTree.findNode(numberArray[2]));
 console.log(numberArray[2]);
