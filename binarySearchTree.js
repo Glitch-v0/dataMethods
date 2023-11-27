@@ -51,7 +51,7 @@ class BinarySearchTree {
     }
     // Iterates through the tree using a while loop
     while (node !== null) {
-      console.log("Iterating through while loop...");
+      console.log(`Iterating through while loop: current node value is ${node.data}`);
       // If the search query is smaller than the node data, go to the left subtree
       if (searchQuery < node.data) {
         parent = node;
@@ -62,6 +62,7 @@ class BinarySearchTree {
         node = node.right;
         // If the search query is equal to the node data, return the node and its parent
       } else {
+        console.log(`Node found. Returning node ${node.data} and parent ${parent.data}`)
         return { node, parent };
       }
     }
@@ -70,7 +71,35 @@ class BinarySearchTree {
   }
 
   delete(dataToDelete) {
-    console.log("Running delete...");
+    // Base case: the data to delete is the root
+    if (dataToDelete === this.root.data) {
+      console.log(`The delete request(${dataToDelete} )is the root! (${this.root.data})`);
+      // If it only has one child, set that child as new root
+      if (this.nodeHasOneChild(this.root)) {
+        this.root = this.root.left ? this.root.left : this.root.right;
+        console.log(`Root had one child. New root = ${this.root.data}`);
+        return true
+        // If it has two children, find the successor and update references
+      } else if (this.nodeHasTwoChildren(this.root)) {
+        //Save current root children
+        let oldLeft = this.root.left;
+        let oldRight = this.root.right;
+        console.log({oldLeft, oldRight})
+        this.root = this.findSuccessor(this.root);
+        if (this.root.data === oldRight.data) {
+          this.root.right = null;
+        }
+        this.root.left = oldLeft;
+        console.log(`Root had two children. New root = ${this.root.data}`);
+        return true;
+      } else {
+        // If it has no children, root is set to null.
+        this.root = null;
+        console.log(`Root had no children. New root = ${this.root.data}`)
+        return true
+      }
+    }
+    console.log(`Running delete for value ${dataToDelete}`);
     let results = this.findNode(dataToDelete);
 
     // The node was not found and cannot be deleted
@@ -78,12 +107,12 @@ class BinarySearchTree {
     if (results === null) {
       return false;
       // The node was found, a reference to it and its parent are stored.
-    } else {
-      var foundNode = results.node;
-      if (results.parent !== null) {
-        var nodeParent = results.parent;
-      }
     }
+    var foundNode = results.node;
+    if (results.parent !== null) {
+       var nodeParent = results.parent;
+    }
+  
 
     /* Conditions for if the node has no children, one child, or two children */
 
@@ -101,18 +130,35 @@ class BinarySearchTree {
 
       // Node has two children
     } else if (foundNode.left !== null && foundNode.right !== null) {
-      var successorNode = this.findSuccessor(foundNode.right);
+      var successorNode = this.findSuccessor(foundNode);
+      console.log(
+        `SuccessorNode.left = ${successorNode.left} foundNode.left = ${foundNode.left}`
+      );
       successorNode.left = foundNode.left;
       successorNode.right = foundNode.right;
-      if (dataToDelete !== this.root.data) {
-        // If not root, attempt to replace the parent.
-        this.replaceParentReference(foundNode, nodeParent, successorNode);
-      }
+      /*NOT DONE- Consider the case where the first right node is a leaf node (no children)*/
+      this.replaceParentReference(foundNode, nodeParent, successorNode);
       this.delete(successorNode.data);
       return true;
     } else {
       return false;
     }
+  }
+
+  nodeHasOneChild(node) {
+    if (node.left !== null ^ node.right !== null) {
+       return true
+    }
+    return false
+  }
+
+  nodeHasTwoChildren(node) {
+    if (node.left !== null && node.right !== null) {
+      console.log('True! Has two children')
+      return true
+    }
+    console.log("False! Does not have two children.");
+    return false
   }
 
   deleteParentReference(node, parent) {
@@ -137,14 +183,41 @@ class BinarySearchTree {
   }
 
   findSuccessor(node) {
-    console.log("Running findSuccessor...");
+    console.log(`Running findSuccessor to see if there is a successor beyond ${node.data}`);
     // The in-order successor is the leftmost node in the right subtree
-    while (node.left !== null) {
-      node = node.left;
-      console.log(`Node = ${node.data}`);
-      console.log(`Node.left = ${node.left.data}`);
+    let infiniteLoop = 0;
+    let previousNode = null;
+    let nodeToCheck = node.right;
+    if (nodeToCheck === null) {
+      console.log(`No left child...returning original node ${node.data}`)
+      return node
     }
-    return node;
+    while (nodeToCheck !== null && infiniteLoop < 10) {
+      //console.log(`There is a node to the left! \nNode= ${node.data} \nNode.left = ${node.left.data}`);
+      previousNode = nodeToCheck;
+      nodeToCheck = nodeToCheck.left;
+      infiniteLoop++;
+    }
+    console.log(`Returning successor ${previousNode.data}`)
+    return previousNode;
+  }
+
+  findPredecessor(node) {
+    console.log(`Running findPredecessor to see if there is a successor beyond ${node.data}`);
+    // The in-order successor is the rightmost node in the left subtree
+    let infiniteLoop = 0;
+    let nodeToCheck = node.right;
+    if (nodeToCheck === null) {
+      console.log(`No right child...returning original node ${node.data}`)
+      return node
+    }
+    while (nodeToCheck !== null && infiniteLoop < 10) {
+      console.log(`There is a node to the right! \nNode= ${node.data} \n Node.right = ${node.right.data}`);
+      nodeToCheck = nodeToCheck.right;
+      infiniteLoop++;
+    }
+    console.log(`Returning successor ${nodeToCheck}`)
+    return nodeToCheck;
   }
 
   buildSortedTree(arr, start, end) {
@@ -191,7 +264,7 @@ class BinarySearchTree {
 }
 
 let numberArray = [];
-for (let i = 0; i < 32; i++) {
+for (let i = 0; i < 3; i++) {
   numberArray.push(Math.floor(Math.random() * 1001));
 }
 
