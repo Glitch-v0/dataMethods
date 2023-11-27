@@ -264,7 +264,7 @@ class BinarySearchTree {
 }
 
 let numberArray = [];
-for (let i = 0; i < 3; i++) {
+for (let i = 0; i < 10; i++) {
   numberArray.push(Math.floor(Math.random() * 1001));
 }
 
