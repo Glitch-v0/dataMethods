@@ -1,5 +1,5 @@
 class Node {
-  constructor(data, left = null, right = null, parent = null) {
+  constructor(data, left = null, right = null) {
     this.data = data;
     this.left = left;
     this.right = right;
@@ -42,7 +42,6 @@ class BinarySearchTree {
 
   findNode(searchQuery, node = this.root, parent = null) {
     console.log("Running findNode...");
-    console.log({ searchQuery, node, parent });
     // Checks if node is empty or a match
     if (node === null) {
       return null;
@@ -51,7 +50,7 @@ class BinarySearchTree {
     }
     // Iterates through the tree using a while loop
     while (node !== null) {
-      console.log(`Iterating through while loop: current node value is ${node.data}`);
+      //console.log(`Iterating through while loop: current node value is ${node.data}`);
       // If the search query is smaller than the node data, go to the left subtree
       if (searchQuery < node.data) {
         parent = node;
@@ -62,7 +61,9 @@ class BinarySearchTree {
         node = node.right;
         // If the search query is equal to the node data, return the node and its parent
       } else {
-        console.log(`Node found. Returning node ${node.data} and parent ${parent.data}`)
+        console.log(
+          `Node found. Returning node ${node.data} and parent ${parent.data}`
+        );
         return { node, parent };
       }
     }
@@ -71,48 +72,43 @@ class BinarySearchTree {
   }
 
   delete(dataToDelete) {
+    console.log(`Running delete for value ${dataToDelete}`);
+
     // Base case: the data to delete is the root
-    if (dataToDelete === this.root.data) {
-      console.log(`The delete request(${dataToDelete} )is the root! (${this.root.data})`);
+    if (dataToDelete == this.root.data) {
+      console.log("Trying to delete the root!");
       // If it only has one child, set that child as new root
       if (this.nodeHasOneChild(this.root)) {
         this.root = this.root.left ? this.root.left : this.root.right;
-        console.log(`Root had one child. New root = ${this.root.data}`);
-        return true
+        return true;
         // If it has two children, find the successor and update references
       } else if (this.nodeHasTwoChildren(this.root)) {
         //Save current root children
-        let oldLeft = this.root.left;
-        let oldRight = this.root.right;
-        console.log({oldLeft, oldRight})
-        this.root = this.findSuccessor(this.root);
-        if (this.root.data === oldRight.data) {
-          this.root.right = null;
-        }
-        this.root.left = oldLeft;
-        console.log(`Root had two children. New root = ${this.root.data}`);
+        let copyOfRoot = this.copyNode(this.root);
+        this.root = this.copyNode(this.findSuccessor(this.root));
+        this.copyChildren(copyOfRoot, this.root);
+        console.log(this.root);
+        console.log({copyOfRoot});
         return true;
       } else {
         // If it has no children, root is set to null.
         this.root = null;
-        console.log(`Root had no children. New root = ${this.root.data}`)
-        return true
+        return true;
       }
     }
-    console.log(`Running delete for value ${dataToDelete}`);
+
+    // Find where the node is to delete
     let results = this.findNode(dataToDelete);
+    console.log({ results });
 
     // The node was not found and cannot be deleted
-    console.log({ results });
     if (results === null) {
       return false;
-      // The node was found, a reference to it and its parent are stored.
     }
+
+    // The node was found, a reference to it and its parent are stored.
     var foundNode = results.node;
-    if (results.parent !== null) {
-       var nodeParent = results.parent;
-    }
-  
+    var nodeParent = results.parent;
 
     /* Conditions for if the node has no children, one child, or two children */
 
@@ -130,35 +126,63 @@ class BinarySearchTree {
 
       // Node has two children
     } else if (foundNode.left !== null && foundNode.right !== null) {
-      var successorNode = this.findSuccessor(foundNode);
-      console.log(
-        `SuccessorNode.left = ${successorNode.left} foundNode.left = ${foundNode.left}`
-      );
-      successorNode.left = foundNode.left;
-      successorNode.right = foundNode.right;
-      /*NOT DONE- Consider the case where the first right node is a leaf node (no children)*/
+      var successorNode = this.copyNode(this.findSuccessor(foundNode));
       this.replaceParentReference(foundNode, nodeParent, successorNode);
-      this.delete(successorNode.data);
+      this.copyChildren(foundNode, successorNode)
+      // successorNode.left = foundNode.left;
+      // successorNode.right = foundNode.right;
       return true;
     } else {
       return false;
     }
   }
 
-  nodeHasOneChild(node) {
-    if (node.left !== null ^ node.right !== null) {
-       return true
+  copyNode(node) {
+    if (node === null) {
+      return null;
     }
-    return false
+
+    return new Node(node.data, node.left, node.right, node.parent);
+  }
+  
+  copyChildren(oldNode, newNode) {
+  if (oldNode === null || newNode === null) {
+    return;
+  }
+
+  // Check if the left child of newNode needs to be copied
+  if (newNode.left === null || newNode.left !== oldNode.left) {
+    newNode.left = oldNode.left;
+  }
+
+  // Check if the right child of newNode needs to be copied
+  if (newNode.right === null || newNode.right !== oldNode.right) {
+    newNode.right = oldNode.right;
+  }
+}
+
+
+
+  replaceChildReferences(oldNode, replacementNode) {
+    let OldLeftChild = oldNode.left;
+    let OldRightChild = oldNode.right;
+    replacementNode.left = oldNode;
+  }
+
+  nodeHasOneChild(node) {
+    if ((node.left !== null) ^ (node.right !== null)) {
+      return true;
+    }
+    return false;
   }
 
   nodeHasTwoChildren(node) {
     if (node.left !== null && node.right !== null) {
-      console.log('True! Has two children')
-      return true
+      console.log("True! Has two children");
+      return true;
     }
     console.log("False! Does not have two children.");
-    return false
+    return false;
   }
 
   deleteParentReference(node, parent) {
@@ -183,40 +207,46 @@ class BinarySearchTree {
   }
 
   findSuccessor(node) {
-    console.log(`Running findSuccessor to see if there is a successor beyond ${node.data}`);
+    console.log(
+      `Running findSuccessor to see if there is a successor beyond ${node.data}`
+    );
     // The in-order successor is the leftmost node in the right subtree
-    let infiniteLoop = 0;
+    let successorParent = null;
     let previousNode = null;
     let nodeToCheck = node.right;
+    
+    // If there's not a node to the right, find  predecessor instead of successor.
     if (nodeToCheck === null) {
-      console.log(`No left child...returning original node ${node.data}`)
-      return node
+      return this.findPredecessor(node)
     }
-    while (nodeToCheck !== null && infiniteLoop < 10) {
+
+    while (nodeToCheck !== null) {
+      successorParent = previousNode;
       //console.log(`There is a node to the left! \nNode= ${node.data} \nNode.left = ${node.left.data}`);
       previousNode = nodeToCheck;
       nodeToCheck = nodeToCheck.left;
-      infiniteLoop++;
     }
-    console.log(`Returning successor ${previousNode.data}`)
+    console.log(`Returning successor ${previousNode.data} and parent ${successorParent}`);
     return previousNode;
   }
 
   findPredecessor(node) {
-    console.log(`Running findPredecessor to see if there is a successor beyond ${node.data}`);
+    console.log(
+      `Running findPredecessor to see if there is a successor beyond ${node.data}`
+    );
     // The in-order successor is the rightmost node in the left subtree
-    let infiniteLoop = 0;
-    let nodeToCheck = node.right;
+    let nodeToCheck = node.left;
     if (nodeToCheck === null) {
-      console.log(`No right child...returning original node ${node.data}`)
-      return node
+      console.log(`No right child...returning original node ${node.data}`);
+      return node;
     }
-    while (nodeToCheck !== null && infiniteLoop < 10) {
-      console.log(`There is a node to the right! \nNode= ${node.data} \n Node.right = ${node.right.data}`);
+    while (nodeToCheck !== null) {
+      console.log(
+        `There is a node to the right! \nNode= ${node.data} \n Node.right = ${node.right.data}`
+      );
       nodeToCheck = nodeToCheck.right;
-      infiniteLoop++;
     }
-    console.log(`Returning successor ${nodeToCheck}`)
+    console.log(`Returning successor ${nodeToCheck}`);
     return nodeToCheck;
   }
 
@@ -261,11 +291,29 @@ class BinarySearchTree {
       this.prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
     }
   }
+
+  traverseTreeByLevel(queue = [this.root]) {
+    
+    const nextQueue = [];
+    queue.forEach(node => {
+      console.log(node.data)
+      if (node.left !== null) {
+        nextQueue.push(node.left)
+      }
+      if (node.right !== null) {
+        nextQueue.push(node.right);
+      }
+    });
+    if (nextQueue.length === 0) {
+      return
+    }
+    return this.traverseTreeByLevel(nextQueue)
+  }
 }
 
 let numberArray = [];
-for (let i = 0; i < 3; i++) {
-  numberArray.push(Math.floor(Math.random() * 1001));
+for (let i = 0; i < 15; i++) {
+  numberArray.push(Math.floor(Math.random() * 101));
 }
 
 let newTree = new BinarySearchTree(numberArray);
@@ -277,3 +325,5 @@ for (let i = 0; i < 1; i++) {
   newTree.delete(currentNum);
 }
 newTree.prettyPrint(newTree.root);
+
+newTree.traverseTreeByLevel();
