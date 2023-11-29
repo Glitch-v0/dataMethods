@@ -88,7 +88,8 @@ class BinarySearchTree {
         let successorResults = this.findSuccessor(this.root);
         let successorNode = this.copyNode(successorResults.successor);
         let successorParent = successorResults.parent;
-        this.deleteParentReference(successorResults.successor, successorParent);
+        console.log({successorResults, successorNode, successorParent})
+        this.deleteParentReference(successorNode, successorParent);
         this.root = successorNode;
         this.copyChildren(copyOfRoot, this.root);
         console.log(this.root);
@@ -191,13 +192,24 @@ class BinarySearchTree {
   }
 
   deleteParentReference(node, parent) {
-    //console.log("Running deleteParentReference...");
-    if (parent.left.data === node.data || parent.right.data === node.data) {
-      parent[parent.left.data === node.data ? "left" : "right"] = null;
-      return true;
-    } else {
-      return false;
+    console.log("Running deleteParentReference...");
+    console.log(`Node: ${node.data}, Parent: ${parent.data}`);
+    // Delete reference if node is parent's left child
+    if (parent.left !== null) {
+      if (parent.left.data === node.data) {
+        parent.left = null;
+        return true;
+      }
     }
+    // Delete reference if node is parent's right child
+    if (parent.right !== null) {
+      if (parent.right.data === node.data) {
+        parent.right = null;
+        return true;
+      }
+    }
+    // The parent's children do not equal the node- reference cannot be deleted
+    return false;
   }
 
   replaceParentReference(node, parent, child) {
@@ -215,6 +227,7 @@ class BinarySearchTree {
     // The in-order successor is the leftmost node in the right subtree
     let previousNode = null;
     let nodeToCheck = node.right;
+    const nodeSearchArray = [node.data];
     
     // If there's not a node to the right, find  predecessor instead of successor.
     if (nodeToCheck === null) {
@@ -224,14 +237,12 @@ class BinarySearchTree {
     let parent = node;
 
     while (nodeToCheck !== null) {
+      nodeSearchArray.push(nodeToCheck);
       previousNode = nodeToCheck;
       nodeToCheck = nodeToCheck.left;
-      if (parent === node) {
-        parent = node.right;
-      } else {
-        parent = parent.left;
-      }
     }
+
+    parent = nodeSearchArray[(nodeSearchArray.length-2)];
     console.log(`Returning successor ${previousNode.data} and parent ${parent.data}`);
     return {successor: previousNode, parent: parent};
   }
@@ -313,7 +324,7 @@ class BinarySearchTree {
 }
 
 let numberArray = [];
-for (let i = 0; i < 9; i++) {
+for (let i = 0; i < 11; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
 
