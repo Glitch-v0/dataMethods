@@ -90,6 +90,10 @@ class BinarySearchTree {
         let successorParent = successorResults.parent;
         console.log({successorResults, successorNode, successorParent})
         this.deleteParentReference(successorNode, successorParent);
+        // Restructure hole where successor node is removed
+        if (successorNode.right !== null) {
+          successorParent.left = successorNode.right;
+        }
         this.root = successorNode;
         this.copyChildren(copyOfRoot, this.root);
         console.log(this.root);
@@ -324,7 +328,7 @@ class BinarySearchTree {
 }
 
 let numberArray = [];
-for (let i = 0; i < 11; i++) {
+for (let i = 0; i < 20; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
 
@@ -337,5 +341,3 @@ for (let i = 0; i < 1; i++) {
   newTree.delete(currentNum);
 }
 newTree.prettyPrint(newTree.root);
-
-newTree.traverseTreeByLevel();
