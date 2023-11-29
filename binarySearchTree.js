@@ -41,7 +41,7 @@ class BinarySearchTree {
   }
 
   findNode(searchQuery, node = this.root, parent = null) {
-    console.log("Running findNode...");
+    //console.log("Running findNode...");
     // Checks if node is empty or a match
     if (node === null) {
       return null;
@@ -85,7 +85,11 @@ class BinarySearchTree {
       } else if (this.nodeHasTwoChildren(this.root)) {
         //Save current root children
         let copyOfRoot = this.copyNode(this.root);
-        this.root = this.copyNode(this.findSuccessor(this.root));
+        let successorResults = this.findSuccessor(this.root);
+        let successorNode = this.copyNode(successorResults.successor);
+        let successorParent = successorResults.parent;
+        this.deleteParentReference(successorResults.successor, successorParent);
+        this.root = successorNode;
         this.copyChildren(copyOfRoot, this.root);
         console.log(this.root);
         console.log({copyOfRoot});
@@ -119,6 +123,7 @@ class BinarySearchTree {
 
       // Node has one child
     } else if ((foundNode.left !== null) ^ (foundNode.right !== null)) {
+      // Node has one child
       let singleChild =
         foundNode.left !== null ? foundNode.left : foundNode.right;
       this.replaceParentReference(foundNode, nodeParent, singleChild);
@@ -126,11 +131,11 @@ class BinarySearchTree {
 
       // Node has two children
     } else if (foundNode.left !== null && foundNode.right !== null) {
-      var successorNode = this.copyNode(this.findSuccessor(foundNode));
+      let successorResults = this.findSuccessor(foundNode);
+      let successorNode = this.copyNode(successorResults.successor);
+      let successorParent = successorResults.parent;
       this.replaceParentReference(foundNode, nodeParent, successorNode);
       this.copyChildren(foundNode, successorNode)
-      // successorNode.left = foundNode.left;
-      // successorNode.right = foundNode.right;
       return true;
     } else {
       return false;
@@ -186,9 +191,9 @@ class BinarySearchTree {
   }
 
   deleteParentReference(node, parent) {
-    console.log("Running deleteParentReference...");
-    if (parent.left === node || parent.right === node) {
-      parent[parent.left === node ? "left" : "right"] = null;
+    //console.log("Running deleteParentReference...");
+    if (parent.left.data === node.data || parent.right.data === node.data) {
+      parent[parent.left.data === node.data ? "left" : "right"] = null;
       return true;
     } else {
       return false;
@@ -196,8 +201,8 @@ class BinarySearchTree {
   }
 
   replaceParentReference(node, parent, child) {
-    console.log("Running replaceParentReference...");
-    console.log({ node, parent, child });
+    //console.log("Running replaceParentReference...");
+    //console.log({ node, parent, child });
     if (parent.left === node || parent.right === node) {
       parent[parent.left === node ? "left" : "right"] = child;
       return true;
@@ -207,11 +212,7 @@ class BinarySearchTree {
   }
 
   findSuccessor(node) {
-    console.log(
-      `Running findSuccessor to see if there is a successor beyond ${node.data}`
-    );
     // The in-order successor is the leftmost node in the right subtree
-    let successorParent = null;
     let previousNode = null;
     let nodeToCheck = node.right;
     
@@ -220,33 +221,31 @@ class BinarySearchTree {
       return this.findPredecessor(node)
     }
 
+    let parent = node;
+
     while (nodeToCheck !== null) {
-      successorParent = previousNode;
-      //console.log(`There is a node to the left! \nNode= ${node.data} \nNode.left = ${node.left.data}`);
       previousNode = nodeToCheck;
       nodeToCheck = nodeToCheck.left;
+      if (parent === node) {
+        parent = node.right;
+      } else {
+        parent = parent.left;
+      }
     }
-    console.log(`Returning successor ${previousNode.data} and parent ${successorParent}`);
-    return previousNode;
+    console.log(`Returning successor ${previousNode.data} and parent ${parent.data}`);
+    return {successor: previousNode, parent: parent};
   }
 
   findPredecessor(node) {
-    console.log(
-      `Running findPredecessor to see if there is a successor beyond ${node.data}`
-    );
     // The in-order successor is the rightmost node in the left subtree
     let nodeToCheck = node.left;
     if (nodeToCheck === null) {
-      console.log(`No right child...returning original node ${node.data}`);
       return node;
     }
     while (nodeToCheck !== null) {
-      console.log(
-        `There is a node to the right! \nNode= ${node.data} \n Node.right = ${node.right.data}`
-      );
       nodeToCheck = nodeToCheck.right;
     }
-    console.log(`Returning successor ${nodeToCheck}`);
+    console.log(`Returning predecessor ${nodeToCheck}`);
     return nodeToCheck;
   }
 
@@ -304,15 +303,17 @@ class BinarySearchTree {
         nextQueue.push(node.right);
       }
     });
+    //There are no more children, end the recursion
     if (nextQueue.length === 0) {
       return
     }
+    // Use all children found in the next level search
     return this.traverseTreeByLevel(nextQueue)
   }
 }
 
 let numberArray = [];
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < 9; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
 
