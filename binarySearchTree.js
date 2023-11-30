@@ -328,11 +328,11 @@ class BinarySearchTree {
     }
   }
 
-  traverseTreeByLevel(queue = [this.root]) {
+  traverseTreeByLevel(queue = [this.root], callback = null) {
     
     const nextQueue = [];
     queue.forEach(node => {
-      console.log(node.data)
+      callback(node);
       if (node.left !== null) {
         nextQueue.push(node.left)
       }
@@ -345,7 +345,7 @@ class BinarySearchTree {
       return
     }
     // Use all children found in the next level search
-    return this.traverseTreeByLevel(nextQueue)
+    return this.traverseTreeByLevel(nextQueue, callback)
   }
 }
 
@@ -359,8 +359,16 @@ let newTree = new BinarySearchTree(numberArray);
 newTree.prettyPrint(newTree.root);
 for (let i = 0; i < 1; i++) {
   let currentNum = numberArray[i];
-  console.log(`Attempting to delete ${currentNum}`);
-  newTree.delete(currentNum);
 }
+
+
+function addOne(node){
+  node.data++;
+}
+newTree.traverseTreeByLevel(this.root, addOne);
 newTree.prettyPrint(newTree.root);
-console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
+
+function addOne(node){
+  return node.data++
+}
+
