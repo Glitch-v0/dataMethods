@@ -61,9 +61,9 @@ class BinarySearchTree {
         node = node.right;
         // If the search query is equal to the node data, return the node and its parent
       } else {
-        console.log(
-          `Node found. Returning node ${node.data} and parent ${parent.data}`
-        );
+        // console.log(
+        //   `Node found. Returning node ${node.data} and parent ${parent.data}`
+        // );
         return { node, parent };
       }
     }
@@ -72,7 +72,7 @@ class BinarySearchTree {
   }
 
   delete(dataToDelete) {
-    console.log(`Running delete for value ${dataToDelete}`);
+    //console.log(`Running delete for value ${dataToDelete}`);
 
     // Base case: the data to delete is the root
     if (dataToDelete == this.root.data) {
@@ -83,21 +83,7 @@ class BinarySearchTree {
         return true;
         // If it has two children, find the successor and update references
       } else if (this.nodeHasTwoChildren(this.root)) {
-        //Save current root children
-        let copyOfRoot = this.copyNode(this.root);
-        let successorResults = this.findSuccessor(this.root);
-        let successorNode = this.copyNode(successorResults.successor);
-        let successorParent = successorResults.parent;
-        console.log({successorResults, successorNode, successorParent})
-        this.deleteParentReference(successorNode, successorParent);
-        // Restructure hole where successor node is removed
-        if (successorNode.right !== null) {
-          successorParent.left = successorNode.right;
-        }
-        this.root = successorNode;
-        this.copyChildren(copyOfRoot, this.root);
-        console.log(this.root);
-        console.log({copyOfRoot});
+        this.findSuccessorAndCleanup(this.root);
         return true;
       } else {
         // If it has no children, root is set to null.
@@ -108,7 +94,6 @@ class BinarySearchTree {
 
     // Find where the node is to delete
     let results = this.findNode(dataToDelete);
-    console.log({ results });
 
     // The node was not found and cannot be deleted
     if (results === null) {
@@ -127,20 +112,15 @@ class BinarySearchTree {
       return true;
 
       // Node has one child
-    } else if ((foundNode.left !== null) ^ (foundNode.right !== null)) {
-      // Node has one child
+    } else if (this.nodeHasOneChild(foundNode)) {
       let singleChild =
         foundNode.left !== null ? foundNode.left : foundNode.right;
       this.replaceParentReference(foundNode, nodeParent, singleChild);
       return true;
 
       // Node has two children
-    } else if (foundNode.left !== null && foundNode.right !== null) {
-      let successorResults = this.findSuccessor(foundNode);
-      let successorNode = this.copyNode(successorResults.successor);
-      let successorParent = successorResults.parent;
-      this.replaceParentReference(foundNode, nodeParent, successorNode);
-      this.copyChildren(foundNode, successorNode)
+    } else if (this.nodeHasTwoChildren(foundNode)) {
+      this.findSuccessorAndCleanup(foundNode, nodeParent);
       return true;
     } else {
       return false;
@@ -188,25 +168,22 @@ class BinarySearchTree {
 
   nodeHasTwoChildren(node) {
     if (node.left !== null && node.right !== null) {
-      console.log("True! Has two children");
       return true;
     }
-    console.log("False! Does not have two children.");
+    //console.log("False! Does not have two children.");
     return false;
   }
 
   deleteParentReference(node, parent) {
-    console.log("Running deleteParentReference...");
-    console.log(`Node: ${node.data}, Parent: ${parent.data}`);
     // Delete reference if node is parent's left child
-    if (parent.left !== null) {
+    if (parent.left !== null && parent.left !== undefined) {
       if (parent.left.data === node.data) {
         parent.left = null;
         return true;
       }
     }
     // Delete reference if node is parent's right child
-    if (parent.right !== null) {
+    if (parent.right !== null && parent.left !== undefined) {
       if (parent.right.data === node.data) {
         parent.right = null;
         return true;
@@ -217,10 +194,15 @@ class BinarySearchTree {
   }
 
   replaceParentReference(node, parent, child) {
-    //console.log("Running replaceParentReference...");
-    //console.log({ node, parent, child });
-    if (parent.left === node || parent.right === node) {
-      parent[parent.left === node ? "left" : "right"] = child;
+    // console.log(`Running replaceParentReference...`)
+    // console.log({node, parent, child})
+    // Can't replace parent of root
+    if (node.data === this.root){
+      console.log('Cant replace root.')
+      return false
+    }
+    if (parent.left.data === node.data || parent.right.data === node.data) {
+      parent[parent.left.data === node.data ? "left" : "right"] = child;
       return true;
     } else {
       return false;
@@ -231,12 +213,8 @@ class BinarySearchTree {
     // The in-order successor is the leftmost node in the right subtree
     let previousNode = null;
     let nodeToCheck = node.right;
-    const nodeSearchArray = [node.data];
+    const nodeSearchArray = [node];
     
-    // If there's not a node to the right, find  predecessor instead of successor.
-    if (nodeToCheck === null) {
-      return this.findPredecessor(node)
-    }
 
     let parent = node;
 
@@ -247,8 +225,27 @@ class BinarySearchTree {
     }
 
     parent = nodeSearchArray[(nodeSearchArray.length-2)];
-    console.log(`Returning successor ${previousNode.data} and parent ${parent.data}`);
     return {successor: previousNode, parent: parent};
+  }
+
+  findSuccessorAndCleanup(node, parent){
+    //Save successor node + parent
+    let successorResults = this.findSuccessor(node);
+    let successorNode = this.copyNode(successorResults.successor);
+    let successorParent = successorResults.parent;
+    //console.log({successorResults, successorNode, successorParent})
+
+    // Restructure hole where successor node is removed
+    if (successorNode.left !== null) {
+      successorParent.right = successorNode.right;
+    }
+    this.deleteParentReference(successorNode, successorParent);
+    if(parent !== undefined){
+      this.replaceParentReference(node, parent, successorNode);}
+    if(node === this.root){
+      this.root = successorNode;
+    }
+    this.copyChildren(node, successorNode);
   }
 
   findPredecessor(node) {
@@ -328,7 +325,7 @@ class BinarySearchTree {
 }
 
 let numberArray = [];
-for (let i = 0; i < 20; i++) {
+for (let i = 0; i < 19; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
 
@@ -341,3 +338,4 @@ for (let i = 0; i < 1; i++) {
   newTree.delete(currentNum);
 }
 newTree.prettyPrint(newTree.root);
+console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
