@@ -232,20 +232,40 @@ class BinarySearchTree {
     //Save successor node + parent
     let successorResults = this.findSuccessor(node);
     let successorNode = this.copyNode(successorResults.successor);
+    let successorRightChild = this.copyNode(successorNode.right);
     let successorParent = successorResults.parent;
     //console.log({successorResults, successorNode, successorParent})
 
+    //this.deleteParentReference(successorNode, successorParent);
+
     // Restructure hole where successor node is removed
-    if (successorNode.left !== null) {
-      successorParent.right = successorNode.right;
+    if (successorParent.left === null) {
+      successorParent.left = successorNode.right;
     }
-    this.deleteParentReference(successorNode, successorParent);
+
+
+    // Connect original node's parent reference to successorNode
     if(parent !== undefined){
       this.replaceParentReference(node, parent, successorNode);}
+    
+     /*if Successor node has right child,
+    set corresponding parent child equal to successor child*/
+    this.replaceParentReference(successorNode, successorParent, successorRightChild)
+
+    // In case the node is a root
     if(node === this.root){
       this.root = successorNode;
     }
     this.copyChildren(node, successorNode);
+
+    if (successorRightChild !==null){
+      console.log('Successor has a right child!')
+      if(successorParent.left.value === successorNode.value){
+        successorParent.left = successorRightChild;
+      } else if (successorParent.right.value === successorNode.value){
+        successorParent.right = successorRightChild;
+      }
+    }
   }
 
   findPredecessor(node) {
@@ -259,6 +279,11 @@ class BinarySearchTree {
     }
     console.log(`Returning predecessor ${nodeToCheck}`);
     return nodeToCheck;
+  }
+
+  reConnectSuccessorReferences(successorNode, successorParent){
+    if(successorParent.left === successorNode){}
+    if(successorParent.right === successorNode){}
   }
 
   buildSortedTree(arr, start, end) {
@@ -325,7 +350,7 @@ class BinarySearchTree {
 }
 
 let numberArray = [];
-for (let i = 0; i < 19; i++) {
+for (let i = 0; i < 40; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
 
