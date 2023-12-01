@@ -433,14 +433,13 @@ class BinarySearchTree {
   }
 
   depth(node){
-    //# of edges from node to a leaf
     let comparisonNode = this.copyNode(this.root);
+    //# of edges from root to a node
     let currentDepth = 0;
     if (node === null || node === undefined){
       return false
     }
     while (node.data !== comparisonNode.data){
-      console.log(`Node = ${node.data}, Comparison = ${comparisonNode.data}`)
       if (node.data > comparisonNode.data){
         currentDepth++;
         comparisonNode = comparisonNode.right;
@@ -455,24 +454,34 @@ class BinarySearchTree {
   }
 
   height(node){
-  //# of edges from node to the root
-  let newRoot = this.copyNode(this.root);
-    if (newRoot.data == node.data){
-      return -1
-    } else {
-      // Compute height of each subtree
-      var leftDepth = this.depth(newRoot.left);
-      var rightDepth = this.depth(newRoot.right);
+    //# of edges from node to a leaf
 
-      // Use the larger one
-      if (leftDepth > rightDepth){
-        return (leftDepth + 1);
-      }
-      else {
-        return (rightDepth + 1);
+    function rootHeight (node){
+      if (node === null){
+        return -1
+      } else {
+        // Compute height of each subtree
+        var leftDepth = rootHeight(node.left);
+        var rightDepth = rootHeight(node.right);
+  
+        // Use the larger one
+        if (leftDepth > rightDepth){
+          return (leftDepth + 1);
+        }
+        else {
+          return (rightDepth + 1);
+        }
       }
     }
-}
+
+    //GET HEIGHT OF ROOT, then DEPTH OF NODE, then  SUBTRACT
+    let treeHeight = rootHeight(this.root);
+    let nodeDepth = this.depth(node);
+    let nodeHeight = treeHeight-nodeDepth;
+    console.log({treeHeight, nodeDepth, nodeHeight})
+    return nodeHeight;
+    }
+    
 }
 
 function addOne(node){
@@ -480,10 +489,11 @@ function addOne(node){
 }
 
 let numberArray = [];
-for (let i = 0; i < 40; i++) {
+for (let i = 0; i < 19; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
 let newTree = new BinarySearchTree(numberArray);
 console.log(newTree.prettyPrint(newTree.root));
-console.log(numberArray[0])
-console.log(newTree.height(newTree.findNode(numberArray[0]).node))
+let nodeToTest = newTree.findNode(numberArray[0]).node;
+console.log({nodeToTest})
+console.log(newTree.height(nodeToTest));
