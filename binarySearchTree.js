@@ -443,18 +443,10 @@ class BinarySearchTree {
       console.log(`Node = ${node.data}, Comparison = ${comparisonNode.data}`)
       if (node.data > comparisonNode.data){
         currentDepth++;
-        if(comparisonNode.right !==null){
-          comparisonNode = comparisonNode.right;
-        } else {
-          return currentDepth
-        }
+        comparisonNode = comparisonNode.right;
       } else if (node.data < comparisonNode.data){
         currentDepth++;
-        if(comparisonNode.left !==null){
-          comparisonNode = comparisonNode.left;
-        } else {
-          return currentDepth
-        }
+        comparisonNode = comparisonNode.left;
       } else {
         return currentDepth
       }
