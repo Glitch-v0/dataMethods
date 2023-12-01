@@ -347,28 +347,151 @@ class BinarySearchTree {
     // Use all children found in the next level search
     return this.traverseTreeByLevel(nextQueue, callback)
   }
+
+  inOrder(node, results, callback){
+    //PURPOSE: Visits nodes in ascending order
+    //METHOD: Traverse left sub-tree, root, right sub-tree
+
+    if (results === undefined){
+      var results = []; //To store the values during traversal
+    }
+    
+    // Base case- there is no child to check
+    if (!node){
+      return
+    }
+    
+    this.inOrder(node.left, results);
+    results.push(node);
+    this.inOrder(node.right, results);
+
+    // Returns the results if no callback is specified
+    if(callback === undefined || callback === null){
+      return results
+    } else {
+      results.forEach(result => {
+        callback(result);
+      })
+      return results
+    }
+  }
+  preOrder(node, results, callback){
+    //PURPOSE: Create a copy of a tree
+    /*Traverse root, left sub-tree, right sub-tree */
+
+    if (results === undefined){
+      var results = []; //To store the values during traversal
+    }
+    
+    // Base case- there is no child to check
+    if (!node){
+      return
+    }
+
+    results.push(node);
+    this.preOrder(node.left, results);
+    this.preOrder(node.right, results);
+
+    // Returns the results if no callback is specified
+    if(callback === undefined || callback === null){
+      return results
+    } else {
+      results.forEach(result => {
+        console.log(result.data)
+        callback(result);
+      })
+      return results
+    }
+  }
+  postOrder(node, results, callback){
+    //PURPOSE: Delete a tree
+    /*Visit left sub-tree, right sub-tree, root  */
+
+    if (results === undefined){
+      var results = []; //To store the values during traversal
+    }
+    
+    // Base case- there is no child to check
+    if (!node){
+      return
+    }
+
+    this.postOrder(node.left, results);
+    this.postOrder(node.right, results);
+    results.push(node);
+
+    // Returns the results if no callback is specified
+    if(callback === undefined || callback === null){
+      return results
+    } else {
+      results.forEach(result => {
+        console.log(result.data)
+        callback(result);
+      })
+      return results
+    }
+  }
+
+  depth(node){
+    //# of edges from node to a leaf
+    let comparisonNode = this.copyNode(this.root);
+    let currentDepth = 0;
+    if (node === null || node === undefined){
+      return false
+    }
+    while (node.data !== comparisonNode.data){
+      console.log(`Node = ${node.data}, Comparison = ${comparisonNode.data}`)
+      if (node.data > comparisonNode.data){
+        currentDepth++;
+        if(comparisonNode.right !==null){
+          comparisonNode = comparisonNode.right;
+        } else {
+          return currentDepth
+        }
+      } else if (node.data < comparisonNode.data){
+        currentDepth++;
+        if(comparisonNode.left !==null){
+          comparisonNode = comparisonNode.left;
+        } else {
+          return currentDepth
+        }
+      } else {
+        return currentDepth
+      }
+    }
+    return currentDepth
+  }
+
+  height(node){
+  //# of edges from node to the root
+  let newRoot = this.copyNode(this.root);
+    if (newRoot.data == node.data){
+      return -1
+    } else {
+      // Compute height of each subtree
+      var leftDepth = this.depth(newRoot.left);
+      var rightDepth = this.depth(newRoot.right);
+
+      // Use the larger one
+      if (leftDepth > rightDepth){
+        return (leftDepth + 1);
+      }
+      else {
+        return (rightDepth + 1);
+      }
+    }
+}
+}
+
+function addOne(node){
+  node.data++;
 }
 
 let numberArray = [];
 for (let i = 0; i < 40; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
-
 let newTree = new BinarySearchTree(numberArray);
-
-newTree.prettyPrint(newTree.root);
-for (let i = 0; i < 1; i++) {
-  let currentNum = numberArray[i];
-}
-
-
-function addOne(node){
-  node.data++;
-}
-newTree.traverseTreeByLevel(this.root, addOne);
-newTree.prettyPrint(newTree.root);
-
-function addOne(node){
-  return node.data++
-}
-
+console.log(newTree.prettyPrint(newTree.root));
+console.log(numberArray[0])
+console.log(newTree.height(newTree.findNode(numberArray[0]).node))
