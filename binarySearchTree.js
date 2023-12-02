@@ -41,7 +41,6 @@ class BinarySearchTree {
   }
 
   findNode(searchQuery, node = this.root, parent = null) {
-    //console.log("Running findNode...");
     // Checks if node is empty or a match
     if (node === null) {
       return null;
@@ -50,7 +49,6 @@ class BinarySearchTree {
     }
     // Iterates through the tree using a while loop
     while (node !== null) {
-      //console.log(`Iterating through while loop: current node value is ${node.data}`);
       // If the search query is smaller than the node data, go to the left subtree
       if (searchQuery < node.data) {
         parent = node;
@@ -61,7 +59,6 @@ class BinarySearchTree {
         node = node.right;
         // If the search query is equal to the node data, return the node and its parent
       } else {
-        // console.log(
         //   `Node found. Returning node ${node.data} and parent ${parent.data}`
         // );
         return { node, parent };
@@ -72,11 +69,8 @@ class BinarySearchTree {
   }
 
   delete(dataToDelete) {
-    //console.log(`Running delete for value ${dataToDelete}`);
-
     // Base case: the data to delete is the root
     if (dataToDelete == this.root.data) {
-      console.log("Trying to delete the root!");
       // If it only has one child, set that child as new root
       if (this.nodeHasOneChild(this.root)) {
         this.root = this.root.left ? this.root.left : this.root.right;
@@ -170,7 +164,6 @@ class BinarySearchTree {
     if (node.left !== null && node.right !== null) {
       return true;
     }
-    //console.log("False! Does not have two children.");
     return false;
   }
 
@@ -194,11 +187,8 @@ class BinarySearchTree {
   }
 
   replaceParentReference(node, parent, child) {
-    // console.log(`Running replaceParentReference...`)
-    // console.log({node, parent, child})
     // Can't replace parent of root
     if (node.data === this.root){
-      console.log('Cant replace root.')
       return false
     }
     if (parent.left.data === node.data || parent.right.data === node.data) {
@@ -234,7 +224,6 @@ class BinarySearchTree {
     let successorNode = this.copyNode(successorResults.successor);
     let successorRightChild = this.copyNode(successorNode.right);
     let successorParent = successorResults.parent;
-    //console.log({successorResults, successorNode, successorParent})
 
     //this.deleteParentReference(successorNode, successorParent);
 
@@ -259,7 +248,6 @@ class BinarySearchTree {
     this.copyChildren(node, successorNode);
 
     if (successorRightChild !==null){
-      console.log('Successor has a right child!')
       if(successorParent.left.value === successorNode.value){
         successorParent.left = successorRightChild;
       } else if (successorParent.right.value === successorNode.value){
@@ -277,7 +265,6 @@ class BinarySearchTree {
     while (nodeToCheck !== null) {
       nodeToCheck = nodeToCheck.right;
     }
-    console.log(`Returning predecessor ${nodeToCheck}`);
     return nodeToCheck;
   }
 
@@ -328,25 +315,34 @@ class BinarySearchTree {
     }
   }
 
-  levelOrder(queue = [this.root], callback = null) {
-    
+  levelOrder(queue = [this.root], callback = null, finalResults = []) {
+    if (finalResults === undefined){
+      var finalResults = [];
+    }
     const nextQueue = [];
+    if (!Array.isArray(queue)){
+      queue = [queue];
+    }
     queue.forEach(node => {
-      console.log(node);
-      callback(node);
+      if (callback !== null && callback !== undefined){
+        callback(node);
+      }
       if (node.left !== null) {
+        finalResults.push(node.left);
         nextQueue.push(node.left)
       }
       if (node.right !== null) {
+        finalResults.push(node.right);
         nextQueue.push(node.right);
       }
     });
     //There are no more children, end the recursion
     if (nextQueue.length === 0) {
-      return
-    }
+      return finalResults
+    } else {
     // Use all children found in the next level search
-    return this.levelOrder(nextQueue, callback)
+    return this.levelOrder(nextQueue, callback, finalResults)
+    }
   }
 
   inOrder(node, results, callback){
@@ -371,7 +367,6 @@ class BinarySearchTree {
       return results
     } else {
       results.forEach(result => {
-        console.log(result.data)
         callback(result);
       })
       return results
@@ -399,7 +394,6 @@ class BinarySearchTree {
       return results
     } else {
       results.forEach(result => {
-        console.log(result.data)
         callback(result);
       })
       return results
@@ -427,7 +421,6 @@ class BinarySearchTree {
       return results
     } else {
       results.forEach(result => {
-        console.log(result.data)
         callback(result);
       })
       return results
@@ -504,9 +497,7 @@ class BinarySearchTree {
     treeNodesInOrder.forEach(node => {
       valuesOfNodes.push(node.data);
     });
-    console.log(valuesOfNodes)
     this.root = this.buildSortedTree(valuesOfNodes);
-    console.log(`NEW ROOT = ${this.root}`)
   }
 }
 
@@ -515,20 +506,35 @@ let numberArray = [];
 for (let i = 0; i < 75; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
-let newTree = new BinarySearchTree(numberArray);
-console.log(newTree.isBalanced());
 
-function fourOrders(tree){
-  tree.levelOrder();
-  tree.preOrder();
-  tree.postOrder();
-  tree.inOrder();
-}
-fourOrders(newTree);
-for (let i = 0; i < 25; i++) {
-  newTree.insert(Math.floor(Math.random() * 101));
-}
-console.log(newTree.isBalanced());
-newTree.rebalance();
-console.log(newTree.isBalanced());
-fourOrders(newTree);
+/*Uncomment to test */
+// let newTree = new BinarySearchTree(numberArray);
+// let treeRoot = newTree.root;
+// newTree.prettyPrint(treeRoot);
+// console.log(newTree.isBalanced());
+// function printNodeValues(nodeArray){
+//   let nodeValues = [];
+//   for (let node of nodeArray) {
+//     nodeValues.push(node.data)
+//   }
+//   console.log(nodeValues)
+// }
+// printNodeValues(newTree.levelOrder(treeRoot));
+// printNodeValues(newTree.preOrder(treeRoot));
+// printNodeValues(newTree.postOrder(treeRoot));
+// printNodeValues(newTree.inOrder(treeRoot));
+// for (let i = 0; i < 26; i++) {
+//   newTree.insert(Math.floor(Math.random() * 101));
+// }
+// console.log(newTree.isBalanced());
+// newTree.prettyPrint(treeRoot)
+// newTree.rebalance();
+// console.log(newTree.isBalanced());
+// printNodeValues(newTree.levelOrder(treeRoot));
+// printNodeValues(newTree.preOrder(treeRoot));
+// printNodeValues(newTree.postOrder(treeRoot));
+// printNodeValues(newTree.inOrder(treeRoot));
+// newTree.prettyPrint(treeRoot)
+// newTree.rebalance();
+// console.log(newTree.isBalanced());
+// newTree.prettyPrint(treeRoot)
