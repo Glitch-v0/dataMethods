@@ -328,10 +328,11 @@ class BinarySearchTree {
     }
   }
 
-  traverseTreeByLevel(queue = [this.root], callback = null) {
+  levelOrder(queue = [this.root], callback = null) {
     
     const nextQueue = [];
     queue.forEach(node => {
+      console.log(node);
       callback(node);
       if (node.left !== null) {
         nextQueue.push(node.left)
@@ -345,7 +346,7 @@ class BinarySearchTree {
       return
     }
     // Use all children found in the next level search
-    return this.traverseTreeByLevel(nextQueue, callback)
+    return this.levelOrder(nextQueue, callback)
   }
 
   inOrder(node, results, callback){
@@ -370,6 +371,7 @@ class BinarySearchTree {
       return results
     } else {
       results.forEach(result => {
+        console.log(result.data)
         callback(result);
       })
       return results
@@ -510,15 +512,23 @@ class BinarySearchTree {
 
 
 let numberArray = [];
-for (let i = 0; i < 5; i++) {
+for (let i = 0; i < 75; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
 let newTree = new BinarySearchTree(numberArray);
+console.log(newTree.isBalanced());
 
-for (let i = 0; i < 10; i++) {
+function fourOrders(tree){
+  tree.levelOrder();
+  tree.preOrder();
+  tree.postOrder();
+  tree.inOrder();
+}
+fourOrders(newTree);
+for (let i = 0; i < 25; i++) {
   newTree.insert(Math.floor(Math.random() * 101));
 }
-newTree.prettyPrint(newTree.root);
-console.log(newTree.isBalanced())
+console.log(newTree.isBalanced());
 newTree.rebalance();
-newTree.prettyPrint(newTree.root);
+console.log(newTree.isBalanced());
+fourOrders(newTree);
