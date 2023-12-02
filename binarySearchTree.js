@@ -481,19 +481,44 @@ class BinarySearchTree {
     console.log({treeHeight, nodeDepth, nodeHeight})
     return nodeHeight;
     }
-    
+  
+  isBalanced(node = this.root){
+    if (node === null){
+      return [true, 0]
+    } else if (node !== null){
+      let left = this.isBalanced(node.left);
+      let right = this.isBalanced(node.right);
+      let balance = (left[0] && right[0] && 
+      Math.abs(left[1]-right[1]) <= 1);
+      return [balance, 1 + Math.max(left[1], right[1])]
+    }
+    return this.isBalanced(node)[0]
+  }
+
+  rebalance(){
+    //Get values in order traversal
+    let treeNodesInOrder = this.inOrder(this.root);
+    let valuesOfNodes = [];
+    treeNodesInOrder.forEach(node => {
+      valuesOfNodes.push(node.data);
+    });
+    console.log(valuesOfNodes)
+    this.root = this.buildSortedTree(valuesOfNodes);
+    console.log(`NEW ROOT = ${this.root}`)
+  }
 }
 
-function addOne(node){
-  node.data++;
-}
 
 let numberArray = [];
-for (let i = 0; i < 19; i++) {
+for (let i = 0; i < 5; i++) {
   numberArray.push(Math.floor(Math.random() * 101));
 }
 let newTree = new BinarySearchTree(numberArray);
-console.log(newTree.prettyPrint(newTree.root));
-let nodeToTest = newTree.findNode(numberArray[0]).node;
-console.log({nodeToTest})
-console.log(newTree.height(nodeToTest));
+
+for (let i = 0; i < 10; i++) {
+  newTree.insert(Math.floor(Math.random() * 101));
+}
+newTree.prettyPrint(newTree.root);
+console.log(newTree.isBalanced())
+newTree.rebalance();
+newTree.prettyPrint(newTree.root);
