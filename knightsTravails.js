@@ -20,7 +20,7 @@ class chessBoardSlot {
 
 class chessBoard {
     constructor(){
-        this.startingPoint = new chessBoardSlot([0, 0]);
+        this.startingPoint;
         this.slotReferences = [];
     }
 
@@ -29,17 +29,13 @@ class chessBoard {
             for (let y = 0; y < 8; y++) {
                 this.slotReferences.push(new chessBoardSlot([x, y], null, null, null, null));
             }
-    }}
+    }
+    this.startingPoint = this.slotReferences[0];
+}
 
     findSlotByCoordinate(x, y){
-        this.slotReferences.forEach(slot => {
-            if ((slot.coordinate[0]=== x) && (slot.coordinate[1] === y)){
-                // Slot matches x and y coordinates
-                return slot
-            };
-        })
-        // No slot matches the coordinates
-        return null
+        // Use the find method to return the first slot that matches the coordinates
+        return this.slotReferences.find(slot => slot.coordinate[0] === x && slot.coordinate[1] === y);
     }
 
     assignUpDirection(currentSlot, referenceSlotX, referenceSlotY){
@@ -57,22 +53,76 @@ class chessBoard {
 
     assignAllReferences(){
         for (let slot of this.slotReferences) {
-            if (slot.coordinate[0] < 7){
+            // Just easier to read variables
+            let xCoordinate = slot.coordinate[0];
+            let yCoordinate = slot.coordinate[1];
+            if (xCoordinate < 7){
+                /* Assigns each slot's right direction to the slot one column to the right,
+                unless it's in the last column */
+                this.assignRightDirection(slot, xCoordinate + 1, yCoordinate);
+            }
+            if (xCoordinate > 0){
+                /* Assigns each slot's left direction to the slot one column to the left,
+                unless it's in the first column */
+                this.assignLeftDirection(slot, xCoordinate - 1, yCoordinate);
+            }
+            if (yCoordinate > 0){
+                /* Assigns each slot's down direction to the slot one row below it,
+                unless it's in the bottom row */
+                this.assignDownDirection(slot, xCoordinate, yCoordinate - 1);
+            }
+            if (yCoordinate < 7){
                 /* Assigns each slot's up direction to the slot one row above it,
                 unless it's in the top row */
-                this.assignUpDirection(slot, slot.coordinate[0]+1, slot.coordinate[1])
+                this.assignUpDirection(slot, xCoordinate, yCoordinate + 1);
             }
         }
     }
 
+    printAllSlots(){
+        for (let slot of this.slotReferences) {
+            console.log(
+                `\nSlot coordinate: ${slot.coordinate}
+            `);
+            if (slot.up !== null){
+                console.log(`Up reference: ${slot.up.coordinate}\n`);
+            }
+            if (slot.down !== null){
+                console.log(`Down reference: ${slot.down.coordinate}\n`);
+            }
+            if (slot.left !== null){
+                console.log(`Left reference: ${slot.left.coordinate}\n`);
+            }
+            if (slot.right !== null){
+                console.log(`Right reference: ${slot.right.coordinate}\n`);
+            }
+        }
+    }
+
+    printSnakePattern(){
+        let tempSlot = this.startingPoint;
+        console.log(tempSlot.coordinate);
+        for (let i = 0; i < 4; i++) {
+            while (tempSlot.right !== null){
+                tempSlot = tempSlot.right;
+                console.log(tempSlot.coordinate);
+            }
+            tempSlot = tempSlot.up;
+            console.log(tempSlot.coordinate);
+            while (tempSlot.left !== null){
+                tempSlot = tempSlot.left;
+                console.log(tempSlot.coordinate);
+            }
+            if (tempSlot.up !== null){
+                tempSlot = tempSlot.up;
+                console.log(tempSlot.coordinate);
+            }
+        }
+    }
 }
 
 let newChessBoard = new chessBoard();
 newChessBoard.createBoard();
-// for (const slot of chessBoardSlots) {
-//     console.log({slot})
-//     switch (slot) {
-//         case slot.coordinate[0] < 7:
-//             slot.up = slot.coordinate
-//     }
-// }
+newChessBoard.assignAllReferences();
+newChessBoard.printAllSlots();
+newChessBoard.printSnakePattern();
