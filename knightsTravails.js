@@ -119,10 +119,39 @@ class chessBoard {
             }
         }
     }
+
+    printKnightMoves(startingSlot){
+        if (startingSlot.right.right.up !== null){
+            console.log(startingSlot.right.right.up.coordinate)
+        }
+        if (startingSlot.right.right.down !== null){
+            console.log(startingSlot.right.right.down.coordinate)
+        }
+        if (startingSlot.left.left.up !== null){
+            console.log(startingSlot.left.left.up.coordinate)
+        }
+        if (startingSlot.left.left.down !== null){
+            console.log(startingSlot.left.left.down.coordinate)
+        }
+        if (startingSlot.up.up.left !== null){
+            console.log(startingSlot.up.up.left.coordinate)
+        }
+        if (startingSlot.up.up.right !== null){
+            console.log(startingSlot.up.up.right.coordinate)
+        }
+        if (startingSlot.down.down.left !== null){
+            console.log(startingSlot.down.down.left.coordinate)
+        }
+        if (startingSlot.down.down.right !== null){
+            console.log(startingSlot.down.down.left.coordinate)
+        }
+        
+        
+    }
+    
 }
 
 let newChessBoard = new chessBoard();
 newChessBoard.createBoard();
 newChessBoard.assignAllReferences();
-newChessBoard.printAllSlots();
-newChessBoard.printSnakePattern();
+newChessBoard.printKnightMoves(newChessBoard.startingPoint);
