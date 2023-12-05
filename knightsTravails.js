@@ -121,32 +121,35 @@ class chessBoard {
     }
 
     printKnightMoves(startingSlot){
-        if (startingSlot.right.right.up !== null){
-            console.log(startingSlot.right.right.up.coordinate)
+        function twoThenOne(slot, firstDirection, secondDirection){
+            let finalMove = slot;
+            //Two moves first direction, if possible
+            for (let i = 0; i < 2; i++) {
+                if (finalMove[firstDirection] !== null){
+                    finalMove = finalMove[firstDirection];
+                } else {
+                    return
+                }
+            }
+            //One move second direction, if possible
+            if (finalMove[secondDirection] !== null){
+                finalMove = finalMove[secondDirection];
+            } else {
+                return
+            }
+            //Only makes it here if the 3 moves were valid
+            console.log(`Moving ${firstDirection}x2, ${secondDirection}x1: ${finalMove.coordinate}`);
+            return finalMove
         }
-        if (startingSlot.right.right.down !== null){
-            console.log(startingSlot.right.right.down.coordinate)
-        }
-        if (startingSlot.left.left.up !== null){
-            console.log(startingSlot.left.left.up.coordinate)
-        }
-        if (startingSlot.left.left.down !== null){
-            console.log(startingSlot.left.left.down.coordinate)
-        }
-        if (startingSlot.up.up.left !== null){
-            console.log(startingSlot.up.up.left.coordinate)
-        }
-        if (startingSlot.up.up.right !== null){
-            console.log(startingSlot.up.up.right.coordinate)
-        }
-        if (startingSlot.down.down.left !== null){
-            console.log(startingSlot.down.down.left.coordinate)
-        }
-        if (startingSlot.down.down.right !== null){
-            console.log(startingSlot.down.down.left.coordinate)
-        }
-        
-        
+        console.log(`Knight at ${startingSlot.coordinate} can make the following moves:`)
+        twoThenOne(startingSlot, "right", "up");
+        twoThenOne(startingSlot, "right", "down");
+        twoThenOne(startingSlot, "left", "up");
+        twoThenOne(startingSlot, "left", "down");
+        twoThenOne(startingSlot, "up", "left");
+        twoThenOne(startingSlot, "up", "right");
+        twoThenOne(startingSlot, "down", "left");
+        twoThenOne(startingSlot, "down", "right");
     }
     
 }
