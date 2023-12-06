@@ -19,139 +19,199 @@ class chessBoardSlot {
 }
 
 class chessBoard {
-    constructor(){
+    constructor() {
         this.startingPoint;
         this.slotReferences = [];
     }
 
-    createBoard(){
+    createBoard() {
         for (let x = 0; x < 8; x++) {
             for (let y = 0; y < 8; y++) {
-                this.slotReferences.push(new chessBoardSlot([x, y], null, null, null, null));
+                this.slotReferences.push(
+                    new chessBoardSlot([x, y], null, null, null, null)
+                );
             }
+        }
+        this.startingPoint = this.slotReferences[0];
     }
-    this.startingPoint = this.slotReferences[0];
-}
 
-    findSlotByCoordinate(x, y){
+    findSlotByCoordinate(x, y) {
         // Use the find method to return the first slot that matches the coordinates
-        return this.slotReferences.find(slot => slot.coordinate[0] === x && slot.coordinate[1] === y);
+        return this.slotReferences.find(
+            (slot) => slot.coordinate[0] === x && slot.coordinate[1] === y
+        );
     }
 
-    assignUpDirection(currentSlot, referenceSlotX, referenceSlotY){
-        currentSlot.up = this.findSlotByCoordinate(referenceSlotX,referenceSlotY);
+    assignUpDirection(currentSlot, referenceSlotX, referenceSlotY) {
+        currentSlot.up = this.findSlotByCoordinate(referenceSlotX, referenceSlotY);
     }
-    assignDownDirection(currentSlot, referenceSlotX, referenceSlotY){
-        currentSlot.down = this.findSlotByCoordinate(referenceSlotX,referenceSlotY);
+    assignDownDirection(currentSlot, referenceSlotX, referenceSlotY) {
+        currentSlot.down = this.findSlotByCoordinate(
+            referenceSlotX,
+            referenceSlotY
+        );
     }
-    assignLeftDirection(currentSlot, referenceSlotX, referenceSlotY){
-        currentSlot.left = this.findSlotByCoordinate(referenceSlotX,referenceSlotY);
+    assignLeftDirection(currentSlot, referenceSlotX, referenceSlotY) {
+        currentSlot.left = this.findSlotByCoordinate(
+            referenceSlotX,
+            referenceSlotY
+        );
     }
-    assignRightDirection(currentSlot, referenceSlotX, referenceSlotY){
-        currentSlot.right = this.findSlotByCoordinate(referenceSlotX,referenceSlotY);
+    assignRightDirection(currentSlot, referenceSlotX, referenceSlotY) {
+        currentSlot.right = this.findSlotByCoordinate(
+            referenceSlotX,
+            referenceSlotY
+        );
     }
 
-    assignAllReferences(){
+    assignAllReferences() {
         for (let slot of this.slotReferences) {
             // Just easier to read variables
             let xCoordinate = slot.coordinate[0];
             let yCoordinate = slot.coordinate[1];
-            if (xCoordinate < 7){
+            if (xCoordinate < 7) {
                 /* Assigns each slot's right direction to the slot one column to the right,
-                unless it's in the last column */
+                        unless it's in the last column */
                 this.assignRightDirection(slot, xCoordinate + 1, yCoordinate);
             }
-            if (xCoordinate > 0){
+            if (xCoordinate > 0) {
                 /* Assigns each slot's left direction to the slot one column to the left,
-                unless it's in the first column */
+                        unless it's in the first column */
                 this.assignLeftDirection(slot, xCoordinate - 1, yCoordinate);
             }
-            if (yCoordinate > 0){
+            if (yCoordinate > 0) {
                 /* Assigns each slot's down direction to the slot one row below it,
-                unless it's in the bottom row */
+                        unless it's in the bottom row */
                 this.assignDownDirection(slot, xCoordinate, yCoordinate - 1);
             }
-            if (yCoordinate < 7){
+            if (yCoordinate < 7) {
                 /* Assigns each slot's up direction to the slot one row above it,
-                unless it's in the top row */
+                        unless it's in the top row */
                 this.assignUpDirection(slot, xCoordinate, yCoordinate + 1);
             }
         }
     }
 
-    printAllSlots(){
-        for (let slot of this.slotReferences) {
-            console.log(
-                `\nSlot coordinate: ${slot.coordinate}
-            `);
-            if (slot.up !== null){
-                console.log(`Up reference: ${slot.up.coordinate}\n`);
+    printAllSlots() {
+        if (this.slotReferences.length > 0) {
+            for (let slot of this.slotReferences) {
+                console.log(
+                    `\nSlot coordinate: ${slot.coordinate[0]}, ${slot.coordinate[1]}
+            `
+                );
+                if (slot.up !== null) {
+                    console.log(`Up reference: ${slot.up.coordinate}\n`);
+                }
+                if (slot.down !== null) {
+                    console.log(`Down reference: ${slot.down.coordinate}\n`);
+                }
+                if (slot.left !== null) {
+                    console.log(`Left reference: ${slot.left.coordinate}\n`);
+                }
+                if (slot.right !== null) {
+                    console.log(`Right reference: ${slot.right.coordinate}\n`);
+                }
             }
-            if (slot.down !== null){
-                console.log(`Down reference: ${slot.down.coordinate}\n`);
-            }
-            if (slot.left !== null){
-                console.log(`Left reference: ${slot.left.coordinate}\n`);
-            }
-            if (slot.right !== null){
-                console.log(`Right reference: ${slot.right.coordinate}\n`);
-            }
+        } else {
+            return false;
         }
     }
 
-    printSnakePattern(){
+    printSnakePattern() {
         let tempSlot = this.startingPoint;
-        console.log(tempSlot.coordinate);
+        //console.log(tempSlot.coordinate);
         for (let i = 0; i < 4; i++) {
-            while (tempSlot.right !== null){
+            while (tempSlot.right !== null) {
                 tempSlot = tempSlot.right;
                 console.log(tempSlot.coordinate);
             }
             tempSlot = tempSlot.up;
             console.log(tempSlot.coordinate);
-            while (tempSlot.left !== null){
+            while (tempSlot.left !== null) {
                 tempSlot = tempSlot.left;
                 console.log(tempSlot.coordinate);
             }
-            if (tempSlot.up !== null){
+            if (tempSlot.up !== null) {
                 tempSlot = tempSlot.up;
                 console.log(tempSlot.coordinate);
             }
         }
     }
 
-    printKnightMoves(startingSlot){
-        if (startingSlot.right.right.up !== null){
-            console.log(startingSlot.right.right.up.coordinate)
+    printKnightMoves(startingSlot, targetCoordinateArray, alreadyVisitedMoves = [startingSlot]) {
+        let listOfNextMoves = [];
+        //console.log(`Does ${startingSlot.coordinate} equal ${targetCoordinateArray}?`)
+        if (
+            //Can't directly compare two arrays- values are separated out
+          startingSlot.coordinate[0] === targetCoordinateArray[0] &&
+          startingSlot.coordinate[1] === targetCoordinateArray[1]
+        ) {
+            return alreadyVisitedMoves;
         }
-        if (startingSlot.right.right.down !== null){
-            console.log(startingSlot.right.right.down.coordinate)
+        function twoThenOne(slot, firstDirection, secondDirection) {
+            let finalMove = slot;
+            //Two moves first direction, if possible
+            for (let i = 0; i < 2; i++) {
+                if (finalMove[firstDirection] !== null) {
+                    finalMove = finalMove[firstDirection];
+                } else {
+                    return false
+                }
+            }
+            //One move second direction, if possible
+            if (finalMove[secondDirection] !== null) {
+                finalMove = finalMove[secondDirection];
+            } else {
+                return false
+            }
+            //Only makes it here if the 3 moves were valid
+            //console.log(`Moving ${firstDirection}x2, ${secondDirection}x1: ${finalMove.coordinate}`);
+            if (!alreadyVisitedMoves.includes(finalMove)) {
+                alreadyVisitedMoves.push(finalMove);
+                listOfNextMoves.push(finalMove)
+                return finalMove
+            }
         }
-        if (startingSlot.left.left.up !== null){
-            console.log(startingSlot.left.left.up.coordinate)
+        // console.log(
+        //   `Knight at ${startingSlot.coordinate} can make the following moves:`
+        // );
+        twoThenOne(startingSlot, "right", "up");
+        twoThenOne(startingSlot, "right", "down");
+        twoThenOne(startingSlot, "left", "up");
+        twoThenOne(startingSlot, "left", "down");
+        twoThenOne(startingSlot, "up", "left");
+        twoThenOne(startingSlot, "up", "right");
+        twoThenOne(startingSlot, "down", "left");
+        twoThenOne(startingSlot, "down", "right");
+        for (let i = 0; i < listOfNextMoves.length - 1; i++) {
+          let currentMove = listOfNextMoves[i];
+          if (
+            currentMove !== false ||
+            currentMove !== null ||
+            currentMove !== undefined
+          ) {
+            //console.log(`${currentMove.coordinate}`);
+            if (currentMove.coordinate === targetCoordinateArray) {
+              //console.log(alreadyVisitedMoves);
+              return alreadyVisitedMoves;
+            } else {
+              this.printKnightMoves(
+                currentMove,
+                targetCoordinateArray,
+                alreadyVisitedMoves
+              );
+                let currentMoveIndex = alreadyVisitedMoves.indexOf(currentMove);
+                alreadyVisitedMoves.splice(currentMoveIndex, 1);
+            }
+          }
         }
-        if (startingSlot.left.left.down !== null){
-            console.log(startingSlot.left.left.down.coordinate)
-        }
-        if (startingSlot.up.up.left !== null){
-            console.log(startingSlot.up.up.left.coordinate)
-        }
-        if (startingSlot.up.up.right !== null){
-            console.log(startingSlot.up.up.right.coordinate)
-        }
-        if (startingSlot.down.down.left !== null){
-            console.log(startingSlot.down.down.left.coordinate)
-        }
-        if (startingSlot.down.down.right !== null){
-            console.log(startingSlot.down.down.left.coordinate)
-        }
-        
-        
     }
-    
 }
 
 let newChessBoard = new chessBoard();
 newChessBoard.createBoard();
 newChessBoard.assignAllReferences();
-newChessBoard.printKnightMoves(newChessBoard.startingPoint);
+//newChessBoard.printAllSlots();
+let foundSlot = newChessBoard.findSlotByCoordinate(5, 5)
+let moves = newChessBoard.printKnightMoves(newChessBoard.startingPoint, [5, 5]);
+console.log(({moves}))
