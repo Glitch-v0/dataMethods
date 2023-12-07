@@ -22,6 +22,9 @@ class chessBoard {
     constructor() {
         this.startingPoint;
         this.slotReferences = [];
+        this.createBoard();
+        this.assignAllReferences();
+        this.knightPaths = []; // Keeps up with the paths outside of knight method
     }
 
     createBoard() {
@@ -117,101 +120,95 @@ class chessBoard {
         }
     }
 
-    printSnakePattern() {
-        let tempSlot = this.startingPoint;
-        //console.log(tempSlot.coordinate);
-        for (let i = 0; i < 4; i++) {
-            while (tempSlot.right !== null) {
-                tempSlot = tempSlot.right;
-                console.log(tempSlot.coordinate);
-            }
-            tempSlot = tempSlot.up;
-            console.log(tempSlot.coordinate);
-            while (tempSlot.left !== null) {
-                tempSlot = tempSlot.left;
-                console.log(tempSlot.coordinate);
-            }
-            if (tempSlot.up !== null) {
-                tempSlot = tempSlot.up;
-                console.log(tempSlot.coordinate);
-            }
-        }
+    printKnightPaths() {
+        let counter = 1;
+        console.log('Running printKnightPaths...')
+        console.log(`# of Paths = ${this.knightPaths.length}`)
+        this.knightPaths.forEach(path => {
+            console.log(`Path ${1}:\n`)
+            counter++;
+            path.forEach(move => {
+                console.log(move.coordinate)
+            });
+        });
     }
 
-    printKnightMoves(startingSlot, targetCoordinateArray, alreadyVisitedMoves = [startingSlot]) {
-        let listOfNextMoves = [];
-        //console.log(`Does ${startingSlot.coordinate} equal ${targetCoordinateArray}?`)
-        if (
+    calculateKnightMoves(startingSlot, targetCoordinateArray, alreadyVisitedMoves = [startingSlot]) {
+        console.log(`Searching for ${targetCoordinateArray}`)
+        if ( // Base case- the target coordinate is the same as the starting slot
             //Can't directly compare two arrays- values are separated out
-          startingSlot.coordinate[0] === targetCoordinateArray[0] &&
-          startingSlot.coordinate[1] === targetCoordinateArray[1]
+            startingSlot.coordinate[0] === targetCoordinateArray[0] &&
+            startingSlot.coordinate[1] === targetCoordinateArray[1]
         ) {
-            return alreadyVisitedMoves;
+            return;
         }
+
         function twoThenOne(slot, firstDirection, secondDirection) {
-            let finalMove = slot;
+            let nextMove = slot;
             //Two moves first direction, if possible
             for (let i = 0; i < 2; i++) {
-                if (finalMove[firstDirection] !== null) {
-                    finalMove = finalMove[firstDirection];
+                if (nextMove[firstDirection] !== null) {
+                    nextMove = nextMove[firstDirection];
                 } else {
-                    return false
+                    return null; //Don't continue if the move is null
                 }
             }
             //One move second direction, if possible
-            if (finalMove[secondDirection] !== null) {
-                finalMove = finalMove[secondDirection];
+            if (nextMove[secondDirection] !== null) {
+                nextMove = nextMove[secondDirection];
             } else {
-                return false
+                return null; //Don't continue if the move is null
             }
-            //Only makes it here if the 3 moves were valid
-            //console.log(`Moving ${firstDirection}x2, ${secondDirection}x1: ${finalMove.coordinate}`);
-            if (!alreadyVisitedMoves.includes(finalMove)) {
-                alreadyVisitedMoves.push(finalMove);
-                listOfNextMoves.push(finalMove)
-                return finalMove
-            }
+
+            return nextMove;
+            
         }
-        // console.log(
-        //   `Knight at ${startingSlot.coordinate} can make the following moves:`
-        // );
-        twoThenOne(startingSlot, "right", "up");
-        twoThenOne(startingSlot, "right", "down");
-        twoThenOne(startingSlot, "left", "up");
-        twoThenOne(startingSlot, "left", "down");
-        twoThenOne(startingSlot, "up", "left");
-        twoThenOne(startingSlot, "up", "right");
-        twoThenOne(startingSlot, "down", "left");
-        twoThenOne(startingSlot, "down", "right");
-        for (let i = 0; i < listOfNextMoves.length - 1; i++) {
-          let currentMove = listOfNextMoves[i];
-          if (
-            currentMove !== false ||
-            currentMove !== null ||
-            currentMove !== undefined
-          ) {
-            //console.log(`${currentMove.coordinate}`);
-            if (currentMove.coordinate === targetCoordinateArray) {
-              //console.log(alreadyVisitedMoves);
-              return alreadyVisitedMoves;
-            } else {
-              this.printKnightMoves(
-                currentMove,
-                targetCoordinateArray,
-                alreadyVisitedMoves
-              );
-                let currentMoveIndex = alreadyVisitedMoves.indexOf(currentMove);
-                alreadyVisitedMoves.splice(currentMoveIndex, 1);
+
+        let moveDirections = [
+            ["right", "up"],
+            ["right", "down"],
+            ["left", "up"],
+            ["left", "down"],
+            ["up", "left"],
+            ["up", "right"],
+            ["down", "left"],
+            ["down", "right"],
+        ];
+
+        for (let i = 0; i < moveDirections.length; i++) {
+            let currentMove = twoThenOne(
+                startingSlot,
+                moveDirections[i][0],
+                moveDirections[i][1]
+            );
+            if (currentMove !== null) {
+                if (
+                    // If it's a valid move, then check if it's the final move
+                    currentMove.coordinate[0] === targetCoordinateArray[0] &&
+                    currentMove.coordinate[1] === targetCoordinateArray[1]
+                ) {
+                    alreadyVisitedMoves.push(currentMove);
+                    console.log(`Found the valid moveset!`);
+                    this.knightPaths.push(alreadyVisitedMoves);
+                    return; //Found a set of moves
+                } else {
+                    if (!alreadyVisitedMoves.includes(currentMove)) {
+                        console.log(currentMove.coordinate);
+                        alreadyVisitedMoves.push(currentMove);
+                        this.calculateKnightMoves(
+                            currentMove,
+                            targetCoordinateArray,
+                            alreadyVisitedMoves
+                        );
+                        let currentMoveIndex = alreadyVisitedMoves.indexOf(currentMove);
+                        alreadyVisitedMoves.splice(currentMoveIndex, 1);
+                    }
+                    return
+                }
             }
-          }
         }
     }
 }
-
 let newChessBoard = new chessBoard();
-newChessBoard.createBoard();
-newChessBoard.assignAllReferences();
-//newChessBoard.printAllSlots();
-let foundSlot = newChessBoard.findSlotByCoordinate(5, 5)
-let moves = newChessBoard.printKnightMoves(newChessBoard.startingPoint, [5, 5]);
-console.log(({moves}))
+newChessBoard.calculateKnightMoves(newChessBoard.startingPoint, [5, 5]);
+newChessBoard.printKnightPaths();
